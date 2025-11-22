@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Operator as ApiOperator } from "./api";
+import type { Operator as ApiOperator } from "../api";
 
 export default function OperatorDrawer({
   operator,
@@ -91,7 +91,7 @@ export default function OperatorDrawer({
               <button
                 className="chip-btn text-[11px] px-3 py-1.5"
                 onClick={() =>
-                  setForm((f) => ({
+                  setForm((f: Partial<ApiOperator>) => ({
                     ...f,
                     online: !f.online,
                   }))
@@ -116,7 +116,7 @@ export default function OperatorDrawer({
               max={999}
               value={form.activeChats ?? 0}
               onChange={(e) =>
-                setForm((f) => ({
+                setForm((f: Partial<ApiOperator>) => ({
                   ...f,
                   activeChats: Math.max(0, Number(e.target.value)),
                 }))
@@ -139,7 +139,7 @@ export default function OperatorDrawer({
               max={100}
               value={loadValue}
               onChange={(e) =>
-                setForm((f) => ({
+                setForm((f: Partial<ApiOperator>) => ({
                   ...f,
                   load: Number(e.target.value),
                 }))
