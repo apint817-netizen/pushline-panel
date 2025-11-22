@@ -1,6 +1,3 @@
-// panel/src/components/HistoryTab.tsx
-import React, { useEffect, useState } from "react";
-
 type BroadcastRecord = {
   timestamp: string;
   phone: string;
