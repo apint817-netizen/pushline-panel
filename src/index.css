@@ -1,0 +1,442 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======= Палитра и фон ======= */
+
+:root {
+  --accent: #FF7A1A;
+  --accent-light: #FF9A4A;
+  --accent-dark: #CC5200;
+
+  --bg-dark: #0B0B0E;
+  --bg-panel: #111114;
+  --bg-card: rgba(24,24,28,0.9);
+
+  --border-card: rgba(255,122,26,0.12);
+  --border-soft: rgba(255,255,255,0.06);
+
+  --text-main: #F5F5F5;
+  --text-dim: #8b8b92;
+  --text-client: #ffffff;
+}
+
+/* Глобальный фон */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background:
+    radial-gradient(circle at 40% 20%, rgba(255,122,26,0.08), transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(255,122,26,0.04), transparent 70%),
+    var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px; /* чуть крупнее общий текст */
+}
+
+/* ======= Каркас приложения (без сложного layout) ======= */
+
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.app-shell-inner {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.app-shell-header {
+  width: 100%;
+}
+
+.app-shell-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.app-shell-nav {
+  width: 100%;
+}
+
+.app-shell-nav-card {
+  width: 100%;
+}
+
+.app-shell-content {
+  width: 100%;
+}
+
+.content-section {
+  width: 100%;
+}
+
+.content-section-wide {
+  width: 100%;
+}
+
+.app-shell-footer {
+  margin-top: 8px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* ======= Компоненты ======= */
+@layer components {
+  /* базовая карта */
+  .card {
+    @apply rounded-2xl p-4 shadow-xl transition;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  /* кнопки */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-medium transition select-none;
+    font-size: 14px;
+    line-height: 1.2;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .btn-primary {
+    background: radial-gradient(circle at 0% 0%, var(--accent) 0%, var(--accent-dark) 70%);
+    color: #000;
+    border: 1px solid var(--accent);
+    box-shadow: 0 10px 30px rgba(255,122,26,0.4);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.07);
+    box-shadow: 0 12px 36px rgba(255,122,26,0.55);
+  }
+
+  .btn-outline {
+    background: rgba(255,255,255,0.02);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* "чип"-кнопка */
+  .chip-btn {
+    @apply text-xs rounded-lg border px-2 py-1 transition;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border-soft);
+    color: var(--text-dim);
+    line-height: 1.2;
+  }
+  .chip-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* табы */
+  .tab-btn {
+    @apply rounded-lg border text-sm font-medium transition px-3 py-1.5;
+    border-color: var(--border-soft);
+    background: rgba(255,255,255,0.02);
+    color: var(--text-dim);
+  }
+  .tab-active {
+    background: radial-gradient(circle at 0% 0%, var(--accent) 0%, var(--accent-dark) 80%);
+    color: #000;
+    border-color: var(--accent);
+    box-shadow: 0 16px 40px rgba(255,122,26,0.4);
+  }
+  .tab-inactive:hover {
+    color: var(--text-main);
+    border-color: var(--accent);
+  }
+
+  /* бейдж количества */
+  .badge-pill {
+    @apply inline-flex items-center justify-center min-w-5 px-1.5 h-5 text-[11px] rounded-md;
+    background: var(--accent);
+    color: #000;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  /* текстовые цвета */
+  .text-muted {
+    color: var(--text-dim);
+  }
+
+  /* список чатов - карточка в списке */
+  .chat-item {
+    @apply w-full text-left p-3 rounded-xl border transition flex flex-col;
+    background: rgba(255,255,255,0.01);
+    border-color: var(--border-soft);
+  }
+  .chat-item:hover {
+    border-color: var(--accent);
+    background: rgba(255,122,26,0.04);
+  }
+
+  .chat-item-active {
+    background: rgba(255,122,26,0.06);
+    border-color: var(--accent);
+    box-shadow: 0 16px 40px rgba(255,122,26,0.25);
+  }
+
+  /* поле ввода */
+  .input-shell {
+    @apply rounded-lg border px-3 py-2 outline-none flex-1;
+    background: rgba(0,0,0,0.2);
+    border-color: var(--border-soft);
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .input-shell:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255,122,26,0.3);
+  }
+
+  .select-shell {
+    @apply rounded-lg border px-3 py-2 outline-none text-sm;
+    background: rgba(0,0,0,0.2);
+    border-color: var(--border-soft);
+    color: var(--text-main);
+  }
+  .select-shell:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255,122,26,0.3);
+  }
+  .select-shell option {
+    background: #1a1a1d;
+    color: #f5f5f5;
+  }
+
+  /* пузырь клиента / оператора */
+  .bubble-client {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-soft);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    max-width: 80%;
+    text-align: left;
+  }
+  .bubble-operator {
+    background: radial-gradient(circle at 0% 0%, var(--accent) 0%, var(--accent-dark) 80%);
+    color: #000;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    max-width: 80%;
+    margin-left: auto;
+    text-align: left;
+  }
+
+  /* индикатор статуса new / routed / replied */
+  .tag {
+    @apply inline-block text-[11px] px-2 py-0.5 rounded border;
+    line-height: 1.2;
+  }
+  .tag-red {
+    background: rgba(255,0,0,0.08);
+    border-color: rgba(255,0,0,0.4);
+    color: #ff6b6b;
+  }
+  .tag-yellow {
+    background: rgba(255,196,0,0.08);
+    border-color: rgba(255,196,0,0.4);
+    color: #ffd059;
+  }
+  .tag-green {
+    background: rgba(0,255,128,0.07);
+    border-color: rgba(0,255,128,0.4);
+    color: #7dffb2;
+  }
+  .tag-blue {
+    background: rgba(80,120,255,0.07);
+    border-color: rgba(80,120,255,0.4);
+    color: #9fb4ff;
+  }
+  .tag-gray {
+    background: rgba(255,255,255,0.02);
+    border-color: var(--border-soft);
+    color: var(--text-dim);
+  }
+
+  /* --- акценты --- */
+  .text-client-number {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .text-chat-topic {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .text-chatpreview {
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* миниатюры картинок внутри редактора сценария */
+  .broadcast-script-editor img {
+    width: 280px;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  /* миниатюры загруженных картинок в блоке медиа */
+  .media-preview-thumb img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    display: block;
+  }
+}
+
+/* ======= Анимации ======= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@layer utilities {
+  .animate-fade-in { animation: fadeInUp .25s ease-out both; }
+  .animate-scale-in { animation: scaleIn .2s ease-out both; }
+}
+
+/* ===== Светлая тема ===== */
+.theme-light body,
+.theme-light #root {
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 30% -10%, rgba(255,165,120,.18), transparent 55%),
+    radial-gradient(circle at 120% 120%, rgba(255,200,150,.15), transparent 60%),
+    #fafafa;
+}
+
+.theme-light .card {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 24px 60px rgba(2,6,23,0.06);
+}
+
+.theme-light .chat-item {
+  background: rgba(255,255,255,0.7);
+  border-color: #d1d5db;
+  color: #0f172a;
+}
+.theme-light .chat-item-active {
+  background: #fff7ed;
+  border-color: #fb923c;
+  box-shadow: 0 18px 40px rgba(251,146,60,0.3);
+}
+
+.theme-light .text-client-number {
+  background: linear-gradient(90deg, #ff7a1a 0%, #ffb56a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.theme-light .text-chat-topic {
+  color: rgba(0,0,0,0.7);
+}
+
+.theme-light .text-chatpreview {
+  color: rgba(0,0,0,0.8);
+}
+
+.theme-light .input-shell,
+.theme-light .select-shell {
+  background: rgba(0,0,0,0.03);
+  border-color: #d1d5db;
+  color: #0f172a;
+}
+.theme-light .input-shell:focus,
+.theme-light .select-shell:focus {
+  background: #fff;
+  border-color: #fb923c;
+  box-shadow: 0 0 0 2px rgba(251,146,60,0.3);
+}
+
+.theme-light .tab-btn {
+  background: #fff;
+  color: #475569;
+  border-color: #d1d5db;
+}
+.theme-light .tab-active {
+  background: linear-gradient(135deg, #ffedd5 0%, #fdba74 60%, #fb923c 100%);
+  color: #000;
+  border-color: #fb923c;
+  box-shadow: 0 16px 32px rgba(251,146,60,0.4);
+}
+.theme-light .tab-inactive:hover {
+  color: #0f172a;
+  border-color: #fb923c;
+}
+
+/* статусные теги в светлой теме */
+.theme-light .tag-red    { background:#fff1f2; color:#e11d48; border-color:#fecdd3; }
+.theme-light .tag-yellow { background:#fefce8; color:#ca8a04; border-color:#fef08a; }
+.theme-light .tag-green  { background:#ecfdf5; color:#059669; border-color:#6ee7b7; }
+.theme-light .tag-blue   { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
+.theme-light .tag-gray   { background:#f8fafc; color:#64748b; border-color:#e2e8f0; }
+
+/* ======= Recharts ======= */
+.recharts-default-tooltip {
+  background: rgba(0,0,0,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-radius: 8px !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  padding: 8px 10px !important;
+}
+
+.recharts-legend-wrapper {
+  color: var(--text-dim) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: rgba(255,255,255,0.6) !important;
+  font-size: 11px;
+}
+.recharts-cartesian-axis-line,
+.recharts-cartesian-grid-vertical line,
+.recharts-cartesian-grid-horizontal line {
+  stroke: rgba(255,255,255,0.15) !important;
+}
+
+.recharts-tooltip-wrapper {
+  color: #fff !important;
+}
+.recharts-tooltip-label {
+  color: #fff !important;
+  font-weight: 500;
+}
+.recharts-tooltip-item {
+  color: #ddd !important;
+}
+.recharts-tooltip-item-name {
+  color: var(--accent-light) !important;
+}
