@@ -1,5 +1,3 @@
-import React from "react";
-
 export type Toast = { id: string; text: string };
 
 export function Toasts({ toasts }: { toasts: Toast[] }) {
