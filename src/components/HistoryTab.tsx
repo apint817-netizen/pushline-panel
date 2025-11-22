@@ -191,9 +191,7 @@ export function HistoryTab() {
       }
 
       // хвост истории (например, последние 1000 строк)
-      const r2 = await fetch(
-        API_BASE + "/api/broadcast/last?limit=1000"
-      );
+      const r2 = await fetch(API_BASE + "/api/broadcast/last?limit=1000");
       const text2 = await r2.text();
 
       let j2: LastTailResponse = { ok: false, count: 0, data: [] };
@@ -240,9 +238,8 @@ export function HistoryTab() {
             История рассылок
           </h2>
           <p className="text-[13px] text-muted mt-1 max-w-2xl">
-            Последняя волна и хвост отправок из{" "}
-            <code>results.csv</code>. Экран для быстрой проверки, кому
-            реально ушли сообщения.
+            Последняя волна и хвост отправок из <code>results.csv</code>.
+            Экран для быстрой проверки, кому реально ушли сообщения.
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -409,7 +406,7 @@ export function HistoryTab() {
                 .slice()
                 .reverse()
                 .slice(0, 200)
-                .map((r, idx) => {
+                .map((r: BroadcastRecord, idx: number) => {
                   const [datePart, timePart] = (r.timestamp || "")
                     .trim()
                     .split(" ");
