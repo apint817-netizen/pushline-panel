@@ -9,7 +9,6 @@ import {
 
 import type { InboxMsg, Operator } from "../api";
 
-const NEW_MSG_BEEP = "/notify.mp3";
 const MAX_LOAD_BEFORE_SKIP = 80;
 
 export function useBackendData(
