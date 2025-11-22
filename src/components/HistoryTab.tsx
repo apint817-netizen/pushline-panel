@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type BroadcastRecord = {
   timestamp: string;
   phone: string;
