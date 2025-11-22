@@ -151,7 +151,7 @@ function AiChatMessages({
 }: {
   messages: ChatMessage[];
   isLoading: boolean;
-  listRef: React.RefObject<HTMLDivElement>;
+  listRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const hasMessages = messages.length > 0;
 
