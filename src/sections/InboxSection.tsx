@@ -1,4 +1,3 @@
-import React from "react";
 import type { InboxMsg as Msg, Operator } from "../api";
 
 type InboxSectionProps = {
