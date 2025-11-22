@@ -6,9 +6,14 @@ const BASE_URL =
   import.meta.env.VITE_API_BASE || "http://localhost:3001";
 
 // Заготовка под авторизацию через PIN/токен
-function authHeaders() {
+// Заготовка под авторизацию через PIN/токен
+function authHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
   const token = localStorage.getItem("pushlineToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
 }
 
 async function apiGet<T>(path: string): Promise<T> {
