@@ -6,6 +6,8 @@
 const BASE_URL =
   import.meta.env.VITE_API_BASE || "http://localhost:3001/api";
 
+console.log("[Pushline] API BASE_URL =", BASE_URL);
+
 // ===== Auth headers (PIN/токен задел) =====
 
 function authHeaders(): Record<string, string> {
