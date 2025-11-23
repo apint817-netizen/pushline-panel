@@ -1,5 +1,12 @@
 // panel/src/components/BroadcastScriptEditor.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  fetchTemplatesActive,
+  uploadTemplatesFile,
+  getBroadcastScript,
+  saveBroadcastScript,
+  ScriptStepApi,
+} from "../api";
 
 type MediaItem = {
   filename: string;
@@ -43,7 +50,7 @@ export default function BroadcastScriptEditor({
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [uploadingTemplates, setUploadingTemplates] = useState(false);
 
-  const imageOptions = useMemo(() => {
+  const imageOptions = React.useMemo(() => {
     const base =
       mediaInfo.images && mediaInfo.images.length > 0
         ? mediaInfo.images
@@ -53,7 +60,7 @@ export default function BroadcastScriptEditor({
     return base;
   }, [mediaInfo]);
 
-  const videoOptions = useMemo(() => {
+  const videoOptions = React.useMemo(() => {
     return mediaInfo.video ? [mediaInfo.video] : [];
   }, [mediaInfo]);
 
@@ -63,20 +70,16 @@ export default function BroadcastScriptEditor({
     async function loadScript() {
       try {
         setLoading(true);
-        const resp = await fetch("http://localhost:3001/broadcast/script");
-        const data = await resp.json();
-        if (!data.ok || !Array.isArray(data.script)) return;
-        if (cancelled) return;
+        const data = await getBroadcastScript();
+        if (!data.ok || !Array.isArray(data.script) || cancelled) return;
 
-        const loaded: ScriptStepLocal[] = (data.script as any[])
+        const loaded: ScriptStepLocal[] = (data.script as ScriptStepApi[])
           .map((s, idx) => {
-            if (!s || typeof s !== "object") return null;
-
-            if (s.type === "text" && typeof s.text === "string") {
+            if (s.type === "text") {
               const vars: string[] = Array.isArray(s.variants)
                 ? s.variants
-                    .filter((x: any) => typeof x === "string")
-                    .map((x: string) => x.trim())
+                    .filter((x) => typeof x === "string")
+                    .map((x) => x.trim())
                     .filter(Boolean)
                 : [];
 
@@ -86,35 +89,31 @@ export default function BroadcastScriptEditor({
                 text: s.text,
                 path: "",
                 variants: vars,
-              } as ScriptStepLocal;
+              };
             }
 
-            if (
-              s.type === "media" &&
-              (s.mediaType === "image" || s.mediaType === "video") &&
-              typeof s.path === "string"
-            ) {
+            if (s.type === "media") {
               const vars: string[] = Array.isArray(s.captionVariants)
                 ? s.captionVariants
-                    .filter((x: any) => typeof x === "string")
-                    .map((x: string) => x.trim())
+                    .filter((x) => typeof x === "string")
+                    .map((x) => x.trim())
                     .filter(Boolean)
                 : [];
 
               return {
                 id: makeId() + "_" + idx,
                 kind: s.mediaType,
-                text: typeof s.caption === "string" ? s.caption : "",
+                text: s.caption || "",
                 path: s.path,
                 variants: vars,
-              } as ScriptStepLocal;
+              };
             }
 
             return null;
           })
           .filter(Boolean) as ScriptStepLocal[];
 
-        setSteps(loaded);
+        if (!cancelled) setSteps(loaded);
       } catch {
         // молча
       } finally {
@@ -131,8 +130,7 @@ export default function BroadcastScriptEditor({
   async function reloadTemplates() {
     try {
       setTemplatesLoading(true);
-      const resp = await fetch("http://localhost:3001/templates");
-      const data = await resp.json();
+      const data = await fetchTemplatesActive();
       if (data.ok && Array.isArray(data.templates)) {
         setTemplates(data.templates as string[]);
       }
@@ -156,14 +154,8 @@ export default function BroadcastScriptEditor({
 
     try {
       setUploadingTemplates(true);
-      const fd = new FormData();
-      fd.append("file", file);
 
-      const resp = await fetch("http://localhost:3001/upload-templates", {
-        method: "POST",
-        body: fd,
-      });
-      const data = await resp.json().catch(() => ({} as any));
+      const data = await uploadTemplatesFile(file);
 
       if (data.ok) {
         pushToast(
@@ -173,7 +165,7 @@ export default function BroadcastScriptEditor({
         );
         await reloadTemplates();
       } else {
-        pushToast(`Ошибка загрузки шаблонов: ${data.error || "?"}`);
+        pushToast(`Ошибка загрузки шаблонов`);
       }
     } catch {
       pushToast("Не удалось загрузить шаблоны");
@@ -304,7 +296,7 @@ export default function BroadcastScriptEditor({
     try {
       setSaving(true);
 
-      const payloadScript = steps
+      const payloadScript: ScriptStepApi[] = steps
         .map((s) => {
           if (s.kind === "text") {
             const text = (s.text || "").trim();
@@ -314,7 +306,7 @@ export default function BroadcastScriptEditor({
 
             if (!text && !variants.length) return null;
 
-            const obj: any = { type: "text", text };
+            const obj: ScriptStepApi = { type: "text", text };
             if (variants.length) obj.variants = variants;
             return obj;
           }
@@ -326,7 +318,7 @@ export default function BroadcastScriptEditor({
             .map((v) => v.trim())
             .filter(Boolean);
 
-          const obj: any = {
+          const obj: ScriptStepApi = {
             type: "media",
             mediaType: s.kind,
             path: s.path,
@@ -336,19 +328,14 @@ export default function BroadcastScriptEditor({
 
           return obj;
         })
-        .filter(Boolean);
+        .filter(Boolean) as ScriptStepApi[];
 
-      const resp = await fetch("http://localhost:3001/broadcast/script", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: payloadScript }),
-      });
-      const data = await resp.json().catch(() => ({}));
+      const data = await saveBroadcastScript(payloadScript);
 
       if (data.ok) {
         pushToast(`Сценарий сохранён (${payloadScript.length} шагов)`);
       } else {
-        pushToast(`Ошибка сохранения сценария: ${data.error || "?"}`);
+        pushToast(`Ошибка сохранения сценария: ${data as any}`);
       }
     } catch {
       pushToast("Не удалось сохранить сценарий");
