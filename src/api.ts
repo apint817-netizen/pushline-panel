@@ -8,6 +8,16 @@ const BASE_URL =
 
 console.log("[Pushline] API BASE_URL =", BASE_URL);
 
+// публичная константа для остальных модулей
+export const API_BASE_URL = BASE_URL.replace(/\/$/, "");
+
+// базовый URL для статики (uploads) — отрезаем /api
+export function getFileBaseUrl() {
+  let base = API_BASE_URL;
+  base = base.replace(/\/api\/?$/, "");
+  return base;
+}
+
 // ===== Auth headers (PIN/токен задел) =====
 
 function authHeaders(): Record<string, string> {
@@ -22,7 +32,7 @@ function authHeaders(): Record<string, string> {
 // ===== Базовые HTTP-helpers =====
 
 async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(BASE_URL + path, {
+  const res = await fetch(API_BASE_URL + path, {
     headers: {
       ...authHeaders(),
     },
@@ -61,7 +71,7 @@ async function apiPost<T>(
     };
   }
 
-  const res = await fetch(BASE_URL + path, fetchOpts);
+  const res = await fetch(API_BASE_URL + path, fetchOpts);
   if (!res.ok) {
     throw new Error("POST " + path + " failed " + res.status);
   }
@@ -69,7 +79,7 @@ async function apiPost<T>(
 }
 
 async function apiPatch<T>(path: string, body: any): Promise<T> {
-  const res = await fetch(BASE_URL + path, {
+  const res = await fetch(API_BASE_URL + path, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -170,6 +180,21 @@ export type HistoryRow = {
   details: string;
 };
 
+// скрипт рассылки (новый формат)
+export type ScriptStepApi =
+  | {
+      type: "text";
+      text: string;
+      variants?: string[];
+    }
+  | {
+      type: "media";
+      mediaType: "image" | "video";
+      path: string;
+      caption?: string;
+      captionVariants?: string[];
+    };
+
 // ===== HEALTH =====
 
 export function apiHealth() {
@@ -238,8 +263,7 @@ export function clearBroadcastMedia() {
 }
 
 // ===== CONTACTS / TEMPLATES UPLOAD =====
-// ВАЖНО: backend-роуты: /api/contacts/upload и /api/templates/upload
-// BASE_URL уже содержит /api, поэтому тут путь именно /contacts/upload и /templates/upload.
+// backend-роуты: /api/contacts/upload и /api/templates/upload.
 
 export function uploadContactsFile(file: File) {
   const form = new FormData();
@@ -321,7 +345,10 @@ export function getBroadcastPlanApi() {
 }
 
 // Запуск волны (ручной wave)
-export function waveBroadcast(adminPin: string, mode: "image" | "video" | "both" | "text") {
+export function waveBroadcast(
+  adminPin: string,
+  mode: "image" | "video" | "both" | "text"
+) {
   return apiPost<BroadcastStatus>("/broadcast/wave", {
     adminPin,
     mode,
@@ -329,7 +356,10 @@ export function waveBroadcast(adminPin: string, mode: "image" | "video" | "both"
 }
 
 // Полный автозапуск (fire + авто-волны с cooldown’ом)
-export function fireBroadcast(adminPin: string, mode: "image" | "video" | "both" | "text" = "image") {
+export function fireBroadcast(
+  adminPin: string,
+  mode: "image" | "video" | "both" | "text" = "image"
+) {
   // /broadcast/fire { adminPin, mode }, PIN-проверка уже есть на сервере
   return apiPost<FireBroadcastResponse>("/broadcast/fire", {
     adminPin,
@@ -357,6 +387,16 @@ export function testSendBroadcast(
 ) {
   // backend: /broadcast/test-direct { to, text, mode }
   return apiPost<any>("/broadcast/test-direct", { to, text, mode });
+}
+
+// ===== SCRIPT (сценарий рассылки) =====
+
+export function getBroadcastScript() {
+  return apiGet<{ ok: boolean; script: ScriptStepApi[] }>("/broadcast/script");
+}
+
+export function saveBroadcastScript(script: ScriptStepApi[]) {
+  return apiPost<{ ok: boolean; saved: number }>("/broadcast/script", { script });
 }
 
 // ===== История / отчёты =====
